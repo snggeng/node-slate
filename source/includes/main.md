@@ -15,16 +15,18 @@ This example API documentation page was created with [Slate](https://github.com/
 
 ```bash
 # With shell, you can just pass the correct header with each request
-curl -X GET -H "Content-type: application/json" -H "Authorization: Bearer <ACCESS_TOKEN>"
+curl -X GET -H "Content-type: application/json"
+-H "Authorization: Bearer <ACCESS_TOKEN>"
 https://vcm-2849.vm.duke.edu/api/ingredients
 ```
 
 ```javascript
-const headers = {
-  "authorization": "Bearer <ACCESS_TOKEN>"
-}
+const headers = new Headers()
+headers.authorization = "Bearer <ACCESS_TOKEN>"
 
-let ingredients = fetch('https://vcm-2849.vm.duke.edu/api/ingredients', headers).then(response => response.json())
+let ingredients =
+fetch('https://vcm-2849.vm.duke.edu/api/ingredients', headers)
+.then(response => response.json())
 ```
 
 > Make sure to replace `Bearer <ACCESS_TOKEN>` with your JWT Token.
@@ -40,16 +42,18 @@ You must replace <code>Bearer <ACCESS_TOKEN></code> with your personal JWT Token
 ## Get All Ingredients
 
 ```bash
-curl -X GET -H "Content-type: application/json" -H "Authorization: Bearer <ACCESS_TOKEN>"
+curl -X GET -H "Content-type: application/json"
+-H "Authorization: Bearer <ACCESS_TOKEN>"
 https://vcm-2849.vm.duke.edu/api/ingredients
 ```
 
 ```javascript
-const headers = {
-  "authorization": "Bearer <ACCESS_TOKEN>"
-}
+const headers = new Headers()
+headers.authorization = "Bearer <ACCESS_TOKEN>"
 
-let ingredients = fetch('https://vcm-2849.vm.duke.edu/api/ingredients', headers).then(response => response.json())
+let ingredients =
+fetch('https://vcm-2849.vm.duke.edu/api/ingredients', headers)
+.then(response => response.json())
 ```
 
 > The above command returns JSON structured like this:
@@ -98,15 +102,18 @@ Remember — You need to be authorized in order to gain access to information at
 ## Get a Specific Ingredient
 
 ```bash
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+curl -X GET -H "Content-type: application/json"
+-H "Authorization: Bearer <ACCESS_TOKEN>"
+https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9
 ```
 
 ```javascript
-const kittn = require('kittn');
+const headers = new Headers()
+headers.authorization = "Bearer <ACCESS_TOKEN>"
 
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
+let ingredients =
+fetch('https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9', headers)
+.then(response => response.json())
 ```
 
 > The above command returns JSON structured like this:
@@ -125,14 +132,16 @@ let max = api.kittens.get(2);
 
 This endpoint retrieves a specific ingredient.
 
-<!-- <aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside> -->
+<aside class="warning">Make sure you replace <code>5a78fc24babe6bce9bb637b9</code> with the relevant <code>_id</code> of the ingredient that you wish to retrieve.</aside>
 
 ### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+`GET https://vcm-2849.vm.duke.edu/api/ingredients/<_id>`
 
 ### URL Parameters
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
+Parameter | Default | Unique | Required | Description
+--------- | ------- | ------ | -------- | ---------- |
+name | nil | true | true | Unique name of ingredient that is case-insensitive.
+temp_state | nil | false | true | Temperature state of the ingredient. Only accepts three types of `enums`: `refrigerated`, `frozen`, `room_temperature`
+package | nil | false | true | Package type of the ingredient. Only accepts six types of `enums`: `sack`, `pail`, `drum`, `supersack`, `truckload`, `railcar`
