@@ -46,6 +46,15 @@ html, body {
   width: 20px;
 }
 
+.icon-png {
+  filter: hue-rotate(180deg) saturate(2.4);
+  -webkit-filter: grayscale(75%) saturate(2.4);
+  height: 150px;
+  width: 150px;
+  min-width: 100px;
+  margin:auto;
+}
+
 @mixin embossed-bg {
   background:
     linear-gradient(to bottom, rgba(#000, 0.2), rgba(#000, 0) 8px),

@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sdelements/node-slate.git"
+    "url": "git+https://github.com/snggeng/node-slate.git"
   },
   "author": "SD Elements",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/sdelements/node-slate/issues"
+    "url": "https://github.com/snggeng/node-slate/issues"
   },
-  "homepage": "https://github.com/sdelements/node-slate#readme",
+  "homepage": "https://github.com/snggeng/node-slate/docs#readme",
   "devDependencies": {
     "del": "^3.0.0",
     "gulp": "^3.9.1",

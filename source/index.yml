@@ -1,9 +1,7 @@
-title: API Reference
+title: HypotheticalMeals API Docs
 
 language_tabs:
   - bash
-  - ruby
-  - python
   - javascript
 
 toc_footers:
