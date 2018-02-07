@@ -39,8 +39,9 @@
       <div class="dark-box"></div>
       <div class="content">
         <h1 id="introduction">Introduction</h1>
-        <p>Welcome to the Hypothetical Meals API documentation. This is the API used by the official Hypothetical Meals web interface, so everything the web UI is able to do can also be accomplished via the API.</p>
-        <p>Hypothetical Meals is a Product Lifecycle Inventory Management software that runs on a noSQL database.</p>
+        <p>Welcome to the HypotheticalMeals API documentation. This is the API used by the official HypotheticalMeals web interface, so everything the web UI is able to do can also be accomplished via the API.</p>
+        <p>You can view code examples in the dark area to the right; switch the programming language of the examples with the tabs in the top right.</p>
+        <p>If anything is missing or seems incorrect, please check the GitHub issues for existing known issues or create a new issue.</p>
         <p>This example API documentation page was created with
           <a href="https://github.com/lord/slate">Slate</a> using the
           <a href="https://github.com/sdelements/node-slate">NodeJS Fork</a>.</p>
@@ -48,69 +49,87 @@
         <blockquote>
           <p>To authorize, use this code:</p>
         </blockquote> <pre class="highlight bash"><code><span class="hljs-comment"># With shell, you can just pass the correct header with each request</span>
-curl <span class="hljs-string">"api_endpoint_here"</span>
-  -H <span class="hljs-string">"Authorization: meowmeowmeow"</span></code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> kittn = <span class="hljs-built_in">require</span>(<span class="hljs-string">'kittn'</span>);
+curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span> -H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = {
+  <span class="hljs-string">"authorization"</span>: <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+}
 
-<span class="hljs-keyword">let</span> api = kittn.authorize(<span class="hljs-string">'meowmeowmeow'</span>);</code></pre>
+<span class="hljs-keyword">let</span> ingredients = fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, headers).then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
         <blockquote>
-          <p>Make sure to replace <code>meowmeowmeow</code> with your API key.</p>
+          <p>Make sure to replace <code>Bearer &lt;ACCESS_TOKEN&gt;</code> with your JWT Token.</p>
         </blockquote>
-        <p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our
-          <a href="http://example.com/developers">developer portal</a>.</p>
-        <p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
-        <p><code>Authorization: meowmeowmeow</code></p>
-        <aside class="notice"> You must replace <code>meowmeowmeow</code> with your personal API key. </aside>
-        <h1 id="kittens">Kittens</h1>
-        <h2 id="get-all-kittens">Get All Kittens</h2> <pre class="highlight bash"><code>curl <span class="hljs-string">"http://example.com/api/kittens"</span>
-  -H <span class="hljs-string">"Authorization: meowmeowmeow"</span></code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> kittn = <span class="hljs-built_in">require</span>(<span class="hljs-string">'kittn'</span>);
+        <p>The HypotheticalMeals API is JSON based. There are two main API routes: <code>/public</code> and <code>/api</code>. In order to make an authenticated call to the API at any <code>/api/*</code> endpoint, you must include your access token with
+          the call. OAuth2 uses a BEARER token that is passed along in an Authorization header.</p>
+        <aside class="notice"> You must replace <code>Bearer <ACCESS_TOKEN></code> with your personal JWT Token. </aside>
+        <h1 id="ingredients">Ingredients</h1>
+        <h2 id="get-all-ingredients">Get All Ingredients</h2> <pre class="highlight bash"><code>curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span> -H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = {
+  <span class="hljs-string">"authorization"</span>: <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+}
 
-<span class="hljs-keyword">let</span> api = kittn.authorize(<span class="hljs-string">'meowmeowmeow'</span>);
-<span class="hljs-keyword">let</span> kittens = api.kittens.get();</code></pre>
+<span class="hljs-keyword">let</span> ingredients = fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, headers).then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
         <blockquote>
           <p>The above command returns JSON structured like this:</p>
         </blockquote> <pre class="highlight json"><code>[
   {
-    <span class="hljs-attr">"id"</span>: <span class="hljs-number">1</span>,
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Fluffums"</span>,
-    <span class="hljs-attr">"breed"</span>: <span class="hljs-string">"calico"</span>,
-    <span class="hljs-attr">"fluffiness"</span>: <span class="hljs-number">6</span>,
-    <span class="hljs-attr">"cuteness"</span>: <span class="hljs-number">7</span>
+      <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a78faf0aafae6cc18aed2e4"</span>,
+      <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-06T00:46:40.556Z"</span>,
+      <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-06T00:46:40.556Z"</span>,
+      <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"frozen"</span>,
+      <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"corn"</span>,
+      <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
   },
   {
-    <span class="hljs-attr">"id"</span>: <span class="hljs-number">2</span>,
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Max"</span>,
-    <span class="hljs-attr">"breed"</span>: <span class="hljs-string">"unknown"</span>,
-    <span class="hljs-attr">"fluffiness"</span>: <span class="hljs-number">5</span>,
-    <span class="hljs-attr">"cuteness"</span>: <span class="hljs-number">10</span>
+      <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a78fc24babe6bce9bb637b9"</span>,
+      <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+      <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+      <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>,
+      <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"carrot"</span>,
+      <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
   }
 ]</code></pre>
-        <p>This endpoint retrieves all kittens.</p>
+        <p>This endpoint retrieves all ingredients.</p>
         <h3 id="http-request">HTTP Request</h3>
-        <p><code>GET http://example.com/api/kittens</code></p>
+        <p><code>GET https://vcm-2849.vm.duke.edu/api/ingredients</code></p>
         <h3 id="query-parameters">Query Parameters</h3>
         <table>
           <thead>
             <tr>
               <th>Parameter</th>
               <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
               <th>Description</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>include_cats</td>
-              <td>false</td>
-              <td>If set to true, the result will also include cats.</td>
+              <td>name</td>
+              <td>nil</td>
+              <td>true</td>
+              <td>true</td>
+              <td>Unique name of ingredient that is case-insensitive.</td>
             </tr>
             <tr>
-              <td>available</td>
+              <td>temp_state</td>
+              <td>nil</td>
+              <td>false</td>
               <td>true</td>
-              <td>If set to false, the result will include kittens that have already been adopted.</td>
+              <td>Temperature state of the ingredient. Only accepts three types of <code>enums</code>: <code>refrigerated</code>, <code>frozen</code>, <code>room_temperature</code></td>
+            </tr>
+            <tr>
+              <td>package</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Package type of the ingredient. Only accepts six types of <code>enums</code>: <code>sack</code>, <code>pail</code>, <code>drum</code>, <code>supersack</code>, <code>truckload</code>, <code>railcar</code></td>
             </tr>
           </tbody>
         </table>
-        <aside class="success"> Remember — a happy kitten is an authenticated kitten! </aside>
-        <h2 id="get-a-specific-kitten">Get a Specific Kitten</h2> <pre class="highlight bash"><code>curl <span class="hljs-string">"http://example.com/api/kittens/2"</span>
+        <aside class="success"> Remember — You need to be authorized in order to gain access to information at the <code>/api</code> route. </aside>
+        <h2 id="get-a-specific-ingredient">Get a Specific Ingredient</h2> <pre class="highlight bash"><code>curl <span class="hljs-string">"http://example.com/api/kittens/2"</span>
   -H <span class="hljs-string">"Authorization: meowmeowmeow"</span></code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> kittn = <span class="hljs-built_in">require</span>(<span class="hljs-string">'kittn'</span>);
 
 <span class="hljs-keyword">let</span> api = kittn.authorize(<span class="hljs-string">'meowmeowmeow'</span>);
@@ -118,14 +137,16 @@ curl <span class="hljs-string">"api_endpoint_here"</span>
         <blockquote>
           <p>The above command returns JSON structured like this:</p>
         </blockquote> <pre class="highlight json"><code>{
-  <span class="hljs-attr">"id"</span>: <span class="hljs-number">2</span>,
-  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Max"</span>,
-  <span class="hljs-attr">"breed"</span>: <span class="hljs-string">"unknown"</span>,
-  <span class="hljs-attr">"fluffiness"</span>: <span class="hljs-number">5</span>,
-  <span class="hljs-attr">"cuteness"</span>: <span class="hljs-number">10</span>
+    <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a78fc24babe6bce9bb637b9"</span>,
+    <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>,
+    <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"carrot"</span>,
+    <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
 }</code></pre>
-        <p>This endpoint retrieves a specific kitten.</p>
-        <aside class="warning">Inside HTML code blocks like this one, you can&#39;t use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+        <p>This endpoint retrieves a specific ingredient.</p>
+        <!-- <aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside> -->
         <h3 id="http-request">HTTP Request</h3>
         <p><code>GET http://example.com/kittens/&lt;ID&gt;</code></p>
         <h3 id="url-parameters">URL Parameters</h3>
