@@ -47,27 +47,185 @@
           <a href="https://github.com/sdelements/node-slate">NodeJS Fork</a>.</p>
         <h1 id="authentication">Authentication</h1>
         <blockquote>
-          <p>To authorize, use this code:</p>
+          <p>To authorize on /api routes, use this code:</p>
         </blockquote> <pre class="highlight bash"><code><span class="hljs-comment"># With shell, you can just pass the correct header with each request</span>
-curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span> -H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
-https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = {
-  <span class="hljs-string">"authorization"</span>: <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
-}
+curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
 
-<span class="hljs-keyword">let</span> ingredients = fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, headers).then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+<span class="hljs-keyword">let</span> ingredients =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, headers)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
         <blockquote>
           <p>Make sure to replace <code>Bearer &lt;ACCESS_TOKEN&gt;</code> with your JWT Token.</p>
         </blockquote>
         <p>The HypotheticalMeals API is JSON based. There are two main API routes: <code>/public</code> and <code>/api</code>. In order to make an authenticated call to the API at any <code>/api/*</code> endpoint, you must include your access token with
           the call. OAuth2 uses a BEARER token that is passed along in an Authorization header.</p>
         <aside class="notice"> You must replace <code>Bearer <ACCESS_TOKEN></code> with your personal JWT Token. </aside>
-        <h1 id="ingredients">Ingredients</h1>
-        <h2 id="get-all-ingredients">Get All Ingredients</h2> <pre class="highlight bash"><code>curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span> -H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
-https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = {
-  <span class="hljs-string">"authorization"</span>: <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+        <h1 id="public">Public</h1>
+        <blockquote>
+          <p>/public routes do not need authorization</p>
+        </blockquote>
+        <p>The <code>/public</code> route is primarily used to <code>sign in</code> and <code>sign out</code> users. As a user you will need to <code>sign in</code> in order to gain access to your unique <code>JWT Token</code> which authenticates you for
+          the session.</p>
+        <h2 id="sign-in">Sign In</h2> <pre class="highlight bash"><code><span class="hljs-comment"># With shell, you can just enter the right data and make a POST request</span>
+curl -d <span class="hljs-string">'{"username":"user", "password":"some password"}'</span>
+-H <span class="hljs-string">"Content-type: application/json"</span>
+-X POST https://vcm-2849.vm.duke.edu/public/signin</code></pre><pre class="highlight javascript"><code><span class="hljs-comment">// Authentication</span>
+<span class="hljs-keyword">const</span> signIn = <span class="hljs-keyword">async</span> (user) =&gt; {
+  <span class="hljs-comment">// Get data from db</span>
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/public/signin'</span>, {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">'post'</span>,
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-string">'Accept'</span>: <span class="hljs-string">'application/json'</span>,
+      <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>
+    },
+    <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify(user)
+  })
+  <span class="hljs-comment">// Receive user token</span>
+  <span class="hljs-keyword">const</span> user_token = <span class="hljs-keyword">await</span> response.json()
+  <span class="hljs-keyword">if</span> (response.status !== <span class="hljs-number">200</span>) <span class="hljs-keyword">throw</span> user_token
+
+  <span class="hljs-keyword">return</span> user_token
 }
 
-<span class="hljs-keyword">let</span> ingredients = fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, headers).then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+<span class="hljs-comment">// Sign In</span>
+<span class="hljs-comment">// throws error if username and password do not match</span>
+<span class="hljs-comment">// returns user token if username and password match</span>
+<span class="hljs-keyword">let</span> user = signIn({<span class="hljs-string">"username"</span>: <span class="hljs-string">"user"</span>, <span class="hljs-string">"password"</span>: <span class="hljs-string">"some password"</span>})</code></pre>
+        <blockquote>
+          <p>The above command returns JSON structured like this:</p>
+        </blockquote> <pre class="highlight json"><code>{
+    <span class="hljs-attr">"success"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"token"</span>: <span class="hljs-string">"JWT ey..."</span>
+}</code></pre>
+        <blockquote>
+          <p>Make sure to replace <code>&lt;username&gt; and &lt;password&gt; fields</code> with your your user credentials.</p>
+        </blockquote>
+        <p>This endpoint takes an object with keys &quot;username&quot; and &quot;password&quot; and validates if that user exists. If both keys match, then a unique <code>JWT token</code> corresponding to the user is generated and returned. On the client-side,
+          you may use this <code>JWT token</code> to get user credentials</p>
+        <h3 id="http-request">HTTP Request</h3>
+        <p><code>POST https://vcm-2849.vm.duke.edu/public/signin</code></p>
+        <h3 id="query-parameters">Query Parameters</h3>
+        <h3 id="token">Token</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>success</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>false</td>
+              <td>Returns query success. Either <code>true</code> or <code>false</code>.</td>
+            </tr>
+            <tr>
+              <td>token</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Unique <code>JWT Token</code> generated using user credentials that can be used to authenticated a user that has successfully signed in.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="user">User</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>username</td>
+              <td>nil</td>
+              <td>true</td>
+              <td>true</td>
+              <td>Unique name of the user that is case-insensitive.</td>
+            </tr>
+            <tr>
+              <td>password</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>A salted hash of the user&#39;s original password</td>
+            </tr>
+            <tr>
+              <td>role</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>false</td>
+              <td>The permission level of the user. There are three possible enums: <code>admin</code>, <code>manager</code>, <code>user</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="success"> Remember — You will need the <code>JWT token</code> to gain access to information at the <code>/api</code> route. </aside>
+        <aside class="notice"> You must replace <code>username</code> and <code>password</code> with your personal user credentials. </aside>
+        <h2 id="sign-out">Sign Out</h2> <pre class="highlight bash"><code><span class="hljs-comment"># With shell, you can just make a GET request</span>
+curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span>
+https://vcm-2849.vm.duke.edu/public/signout</code></pre><pre class="highlight javascript"><code><span class="hljs-comment">// Call the sign out endpoint using fetch</span>
+<span class="hljs-keyword">let</span> response =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/public/signout'</span>)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+        <blockquote>
+          <p>The above command returns JSON structured like this:</p>
+        </blockquote> <pre class="highlight json"><code>{
+    <span class="hljs-attr">"success"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"message"</span>: <span class="hljs-string">"User has been successfully logged out"</span>
+}</code></pre>
+        <p>This endpoint signs the current user out. On the client-side, if you are persisting the <code>JWT Token</code> using <code>local storage</code> or <code>session storage</code>, you should remove the token after a user signs out.</p>
+        <h3 id="http-request">HTTP Request</h3>
+        <p><code>POST https://vcm-2849.vm.duke.edu/public/signout</code></p>
+        <h3 id="query-parameters">Query Parameters</h3>
+        <h3 id="response">Response</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>success</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>false</td>
+              <td>Returns query success. Either <code>true</code> or <code>false</code>.</td>
+            </tr>
+            <tr>
+              <td>message</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Returns a message saying that user has been logged out</td>
+            </tr>
+          </tbody>
+        </table>
+        <h1 id="ingredients">Ingredients</h1>
+        <h2 id="get-all-ingredients">Get All Ingredients</h2> <pre class="highlight bash"><code>curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+
+<span class="hljs-keyword">let</span> ingredients =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, headers)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
         <blockquote>
           <p>The above command returns JSON structured like this:</p>
         </blockquote> <pre class="highlight json"><code>[
@@ -129,11 +287,103 @@ https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight j
           </tbody>
         </table>
         <aside class="success"> Remember — You need to be authorized in order to gain access to information at the <code>/api</code> route. </aside>
-        <h2 id="get-a-specific-ingredient">Get a Specific Ingredient</h2> <pre class="highlight bash"><code>curl <span class="hljs-string">"http://example.com/api/kittens/2"</span>
-  -H <span class="hljs-string">"Authorization: meowmeowmeow"</span></code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> kittn = <span class="hljs-built_in">require</span>(<span class="hljs-string">'kittn'</span>);
+        <h2 id="get-paginated-ingredients">Get Paginated Ingredients</h2> <pre class="highlight bash"><code>curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+https://vcm-2849.vm.duke.edu/api/ingredients/page/1/<span class="hljs-built_in">limit</span>/4/q?temp_state=frozen&amp;package=pail</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
 
-<span class="hljs-keyword">let</span> api = kittn.authorize(<span class="hljs-string">'meowmeowmeow'</span>);
-<span class="hljs-keyword">let</span> max = api.kittens.get(<span class="hljs-number">2</span>);</code></pre>
+<span class="hljs-keyword">let</span> ingredients =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients/page/1/limit/4/q?temp_state=frozen&amp;package=pail'</span>, headers)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+        <blockquote>
+          <p>The above command returns JSON structured like this:</p>
+        </blockquote> <pre class="highlight json"><code>{
+    <span class="hljs-attr">"ingredients"</span>: [
+        {
+            <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a77ccae84982db466fdfb3b"</span>,
+            <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-05T03:17:02.474Z"</span>,
+            <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-05T03:38:48.077Z"</span>,
+            <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"frozen"</span>,
+            <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"beef"</span>,
+            <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+        },
+        {
+            <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a77d21513677cb64d67b74c"</span>,
+            <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-05T03:40:05.008Z"</span>,
+            <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-05T03:49:11.880Z"</span>,
+            <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"frozen"</span>,
+            <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"lamb"</span>,
+            <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+        },
+        {
+            <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a77f97154983dc974de3819"</span>,
+            <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-05T06:28:01.105Z"</span>,
+            <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-05T06:28:01.105Z"</span>,
+            <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"frozen"</span>,
+            <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"fish"</span>,
+            <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+        },
+        {
+            <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a77f971d5498cad97hk4u3820"</span>,
+            <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-05T06:28:01.105Z"</span>,
+            <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-05T06:28:01.105Z"</span>,
+            <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"frozen"</span>,
+            <span class="hljs-attr">"package"</span>: <span class="hljs-string">"pail"</span>,
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"seabass"</span>,
+            <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+        }
+    ],
+    <span class="hljs-attr">"numPages"</span>: <span class="hljs-number">4</span>
+}</code></pre>
+        <p>This endpoint retrieves a paginated and queryable array of ingredients.</p>
+        <p>In the example on the right, <code>/page/1</code> refers to the first page and <code>/limit/4</code> refers to the number of ingredients per page. <code>page/&lt;num&gt;</code> refers to the offset based on the <code>limit</code>. For example,
+          if our query were <code>/api/ingredients/page/2/limit/4/q</code> then it would return the 5th - 8th ingredients in the sorted list of ingredients.</p>
+        <p>The lines after <code>q?</code> refer to query parameters that we can use to add filters to the paginated results. For instance, the in the example on the right, <code>q?temp_state=frozen&amp;package=pail</code> would only return ingredients that
+          are frozen and stored in pails.</p>
+        <p>If there are less ingredients in the database than the query limit specified, all valid results will be returned regardless.</p>
+        <aside class="warning">Make sure you replace <code>page/<num></code> and <code>limit/<num></code> with the relevant page and limit numbers.</aside>
+        <h3 id="http-request">HTTP Request</h3>
+        <p><code>GET https://vcm-2849.vm.duke.edu/api/ingredients/page/&lt;num&gt;/limit/&lt;num&gt;/q?&lt;query_string&gt;</code></p>
+        <h3 id="url-parameters">URL Parameters</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ingredients</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>false</td>
+              <td>An array of ingredients that match the <code>page</code>, <code>limit</code>, and <code>query_string</code> provided in the <code>URL</code></td>
+            </tr>
+            <tr>
+              <td>numPages</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>false</td>
+              <td>A number which is the limit of the original query</td>
+            </tr>
+          </tbody>
+        </table>
+        <aside class="success"> Remember — On your client-side, you will want to use this route to get paginated results in order to reduce throughput and make the load-time of your view independent of the number of documents in the database. </aside>
+        <h2 id="get-a-specific-ingredient">Get a Specific Ingredient</h2> <pre class="highlight bash"><code>curl -X GET -H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+
+<span class="hljs-keyword">let</span> ingredients =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9'</span>, headers)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
         <blockquote>
           <p>The above command returns JSON structured like this:</p>
         </blockquote> <pre class="highlight json"><code>{
@@ -146,21 +396,258 @@ https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight j
     <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
 }</code></pre>
         <p>This endpoint retrieves a specific ingredient.</p>
-        <!-- <aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside> -->
+        <aside class="warning">Make sure you replace <code>5a78fc24babe6bce9bb637b9</code> with the relevant <code>_id</code> of the ingredient that you wish to retrieve.</aside>
         <h3 id="http-request">HTTP Request</h3>
-        <p><code>GET http://example.com/kittens/&lt;ID&gt;</code></p>
+        <p><code>GET https://vcm-2849.vm.duke.edu/api/ingredients/&lt;_id&gt;</code></p>
         <h3 id="url-parameters">URL Parameters</h3>
         <table>
           <thead>
             <tr>
               <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
               <th>Description</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>ID</td>
-              <td>The ID of the kitten to retrieve</td>
+              <td>name</td>
+              <td>nil</td>
+              <td>true</td>
+              <td>true</td>
+              <td>Unique name of ingredient that is case-insensitive.</td>
+            </tr>
+            <tr>
+              <td>temp_state</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Temperature state of the ingredient. Only accepts three types of <code>enums</code>: <code>refrigerated</code>, <code>frozen</code>, <code>room_temperature</code></td>
+            </tr>
+            <tr>
+              <td>package</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Package type of the ingredient. Only accepts six types of <code>enums</code>: <code>sack</code>, <code>pail</code>, <code>drum</code>, <code>supersack</code>, <code>truckload</code>, <code>railcar</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 id="create-an-ingredient">Create an Ingredient</h2> <pre class="highlight bash"><code>curl -d {<span class="hljs-string">"name"</span>: <span class="hljs-string">"pork"</span>, <span class="hljs-string">"package"</span>: <span class="hljs-string">"truckload"</span>, <span class="hljs-string">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>}
+-H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+-X POST
+https://vcm-2849.vm.duke.edu/api/ingredients</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+
+<span class="hljs-keyword">let</span> newIngredient = {
+  <span class="hljs-string">"name"</span>: <span class="hljs-string">"pork"</span>,
+  <span class="hljs-string">"package"</span>: <span class="hljs-string">"truckload"</span>,
+  <span class="hljs-string">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>
+}
+
+<span class="hljs-keyword">let</span> createdIngredient =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients'</span>, {
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-attr">headers</span>: {
+    <span class="hljs-string">'Accept'</span>: <span class="hljs-string">'application/json'</span>,
+    <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>
+  },
+  <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify(newIngredient)
+}, headers)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+        <blockquote>
+          <p>The above command returns JSON structured like this:</p>
+        </blockquote> <pre class="highlight json"><code>{
+    <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a78fc24babe6bce9bb432b10"</span>,
+    <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>,
+    <span class="hljs-attr">"package"</span>: <span class="hljs-string">"truckload"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"pork"</span>,
+    <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+}</code></pre>
+        <blockquote>
+          <p>The <code>_id</code> field will always be unique to the newly created document</p>
+        </blockquote>
+        <p>This endpoint creates a specific ingredient.</p>
+        <aside class="warning">Make sure you do not create new ingredients with a <code>name</code> that already exist in the database. For instance, since we already have <code>name: &quot;fish&quot;</code> in our database, trying to create a new ingredient with the same <code>name</code>          will result in an error and your request will not be successful.</aside>
+        <h3 id="http-request">HTTP Request</h3>
+        <p><code>POST https://vcm-2849.vm.duke.edu/api/ingredients/&lt;_id&gt;</code></p>
+        <h3 id="url-parameters">URL Parameters</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>name</td>
+              <td>nil</td>
+              <td>true</td>
+              <td>true</td>
+              <td>Unique name of ingredient that is case-insensitive.</td>
+            </tr>
+            <tr>
+              <td>temp_state</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Temperature state of the ingredient. Only accepts three types of <code>enums</code>: <code>refrigerated</code>, <code>frozen</code>, <code>room_temperature</code></td>
+            </tr>
+            <tr>
+              <td>package</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Package type of the ingredient. Only accepts six types of <code>enums</code>: <code>sack</code>, <code>pail</code>, <code>drum</code>, <code>supersack</code>, <code>truckload</code>, <code>railcar</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 id="update-an-ingredient">Update an Ingredient</h2> <pre class="highlight bash"><code>curl -d {<span class="hljs-string">"name"</span>: <span class="hljs-string">"fish"</span>, <span class="hljs-string">"package"</span>: <span class="hljs-string">"drum"</span>}
+-H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+-X PUT
+https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+
+<span class="hljs-keyword">let</span> fieldsToUpdate = {
+  <span class="hljs-string">"name"</span>: <span class="hljs-string">"fish"</span>,
+  <span class="hljs-string">"package"</span>: <span class="hljs-string">"drum"</span>
+}
+
+<span class="hljs-keyword">let</span> updatedIngredient =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9'</span>, {
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'PUT'</span>,
+  <span class="hljs-attr">headers</span>: {
+    <span class="hljs-string">'Accept'</span>: <span class="hljs-string">'application/json'</span>,
+    <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>
+  },
+  <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify(fieldsToUpdate)
+}, headers)
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+        <blockquote>
+          <p>The above command returns JSON structured like this:</p>
+        </blockquote> <pre class="highlight json"><code>{
+    <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a78fc24babe6bce9bb637b9"</span>,
+    <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>,
+    <span class="hljs-attr">"package"</span>: <span class="hljs-string">"drum"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"fish"</span>,
+    <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+}</code></pre>
+        <blockquote>
+          <p>Notice that the document with the same <code>_id</code> has different <code>package</code> and <code>name</code> fields</p>
+        </blockquote>
+        <p>This endpoint updates a specific ingredient.</p>
+        <aside class="warning">Make sure you replace <code>5a78fc24babe6bce9bb637b9</code> with the relevant <code>_id</code> of the ingredient that you wish to update.</aside>
+        <h3 id="http-request">HTTP Request</h3>
+        <p><code>PUT https://vcm-2849.vm.duke.edu/api/ingredients/&lt;_id&gt;</code></p>
+        <h3 id="url-parameters">URL Parameters</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>name</td>
+              <td>nil</td>
+              <td>true</td>
+              <td>true</td>
+              <td>Unique name of ingredient that is case-insensitive.</td>
+            </tr>
+            <tr>
+              <td>temp_state</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Temperature state of the ingredient. Only accepts three types of <code>enums</code>: <code>refrigerated</code>, <code>frozen</code>, <code>room_temperature</code></td>
+            </tr>
+            <tr>
+              <td>package</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Package type of the ingredient. Only accepts six types of <code>enums</code>: <code>sack</code>, <code>pail</code>, <code>drum</code>, <code>supersack</code>, <code>truckload</code>, <code>railcar</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 id="delete-an-ingredient">Delete an Ingredient</h2> <pre class="highlight bash"><code>-H <span class="hljs-string">"Content-type: application/json"</span>
+-H <span class="hljs-string">"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</span>
+-X DELETE
+https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9</code></pre><pre class="highlight javascript"><code><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> Headers()
+headers.authorization = <span class="hljs-string">"Bearer &lt;ACCESS_TOKEN&gt;"</span>
+
+
+<span class="hljs-keyword">let</span> deletedIngredient =
+fetch(<span class="hljs-string">'https://vcm-2849.vm.duke.edu/api/ingredients/5a78fc24babe6bce9bb637b9'</span>, {
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'DELETE'</span>,
+  <span class="hljs-attr">headers</span>: headers
+})
+.then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json())</code></pre>
+        <blockquote>
+          <p>The above command returns JSON structured like this:</p>
+        </blockquote> <pre class="highlight json"><code>{
+    <span class="hljs-attr">"_id"</span>: <span class="hljs-string">"5a78fc24babe6bce9bb637b9"</span>,
+    <span class="hljs-attr">"created_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"updated_at"</span>: <span class="hljs-string">"2018-02-06T00:51:48.780Z"</span>,
+    <span class="hljs-attr">"temp_state"</span>: <span class="hljs-string">"refrigerated"</span>,
+    <span class="hljs-attr">"package"</span>: <span class="hljs-string">"drum"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"fish"</span>,
+    <span class="hljs-attr">"__v"</span>: <span class="hljs-number">0</span>
+}</code></pre>
+        <blockquote>
+          <p>The deleted document is returned on success. It has been removed from the database</p>
+        </blockquote>
+        <p>This endpoint removes a specific ingredient.</p>
+        <aside class="warning">Make sure you replace <code>5a78fc24babe6bce9bb637b9</code> with the relevant <code>_id</code> of the ingredient that you wish to update.</aside>
+        <h3 id="http-request">HTTP Request</h3>
+        <p><code>DELETE https://vcm-2849.vm.duke.edu/api/ingredients/&lt;_id&gt;</code></p>
+        <h3 id="url-parameters">URL Parameters</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Default</th>
+              <th>Unique</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>name</td>
+              <td>nil</td>
+              <td>true</td>
+              <td>true</td>
+              <td>Unique name of ingredient that is case-insensitive.</td>
+            </tr>
+            <tr>
+              <td>temp_state</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Temperature state of the ingredient. Only accepts three types of <code>enums</code>: <code>refrigerated</code>, <code>frozen</code>, <code>room_temperature</code></td>
+            </tr>
+            <tr>
+              <td>package</td>
+              <td>nil</td>
+              <td>false</td>
+              <td>true</td>
+              <td>Package type of the ingredient. Only accepts six types of <code>enums</code>: <code>sack</code>, <code>pail</code>, <code>drum</code>, <code>supersack</code>, <code>truckload</code>, <code>railcar</code></td>
             </tr>
           </tbody>
         </table>
